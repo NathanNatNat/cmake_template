@@ -123,8 +123,9 @@ add_subdirectory(configured_files)
 add_subdirectory(src)
 
 # Adding the tests:
-option(ENABLE_TESTING "Enable the tests" ON)
-if(ENABLE_TESTING)
+include(CTest)
+
+if(BUILD_TESTING)
   enable_testing()
   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
 testing")

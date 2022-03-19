@@ -2,29 +2,16 @@
 #include <iostream>
 #include <random>
 #include <array>
+#include <sstream>
 
-#include <docopt/docopt.h>
 #include <ftxui/component/captured_mouse.hpp>// for ftxui
 #include <ftxui/component/component.hpp>// for Slider
 #include <ftxui/component/screen_interactive.hpp>// for ScreenInteractive
-#include <spdlog/spdlog.h>
 
 // This file will be generated automatically when you run the CMake
 // configuration step. It creates a namespace called `myproject`. You can modify
 // the source template at `configured_files/config.hpp.in`.
 #include <internal_use_only/config.hpp>
-
-static constexpr auto USAGE =
-  R"(intro
-
-    Usage:
-          intro
-          intro (-h | --help)
-          intro --version
- Options:
-          -h --help     Show this screen.
-          --version     Show version.
-)";
 
 
 template<std::size_t Width, std::size_t Height> struct GameBoard
@@ -100,17 +87,9 @@ template<std::size_t Width, std::size_t Height> struct GameBoard
   }
 };
 
-int main(int argc, const char **argv)
+int main()
 {
   try {
-    std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-      { std::next(argv), std::next(argv, argc) },
-      true,// show help if requested
-      fmt::format("{} {}",
-        myproject::cmake::project_name,
-        myproject::cmake::project_version));// version string, acquired
-                                            // from config.hpp via CMake
-
     auto screen = ftxui::ScreenInteractive::TerminalOutput();
 
     GameBoard<3, 3> gb;
@@ -118,7 +97,9 @@ int main(int argc, const char **argv)
     std::string quit_text;
 
     const auto update_quit_text = [&quit_text](const auto &game_board) {
-      quit_text = fmt::format("Quit ({} moves)", game_board.move_count);
+      std::stringstream ss;
+      ss << "Quit (" << game_board.move_count << " moves)";
+      quit_text = ss.str();
       if (game_board.solved()) { quit_text += " Solved!"; }
     };
 
@@ -178,8 +159,7 @@ int main(int argc, const char **argv)
 
     screen.Loop(renderer);
 
-
   } catch (const std::exception &e) {
-    fmt::print("Unhandled exception in main: {}", e.what());
+    std::cout << "Unhandled exception in main: " << e.what() << std::endl;
   }
 }
